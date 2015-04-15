@@ -11,6 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   Introduction
+   Installation
+   First_commands
+   Fonctions
+   Fichier_SLS
+   State
 
 
 Indices and tables
