@@ -180,3 +180,52 @@ La déclaration ``include`` permet aux états d'être croisés.
 Lorsqu'un fichier |sls| à une déclaration ``include``, elle sera littéralement étendue pour inclure le contenu des fichiers |sls| inclus
 
 A noter que certains fichiers SLS sont nommés "init.sls", tandis que d'autres ne le sont pas. Plus d'info sur le pourquoi du comment peut être trouvé dans le paragraphe :ref:`Mon premier fichier SLS <ajout_profondeur>`.
+
+
+Extension et inclusion des données SLS
+---------------------------------------
+
+Parfois les données |sls| ont besoins d'être étendues.
+Peut-être que le service apache de vérifier des ressources additionnelles, ou sous certaines circonstances un fichier différent aurait besoin d'être inséré.
+
+Dans ces exemples, le premier va ajouter une bannière customisé à SSH et le second va ajouter plusieurs "watcher" (observateurs) à apache pour inclure le ``mod_python``.
+
+``ssh/custom-server.sls``
+
+.. code-block:: yaml
+
+	include:
+	  - ssh.server
+
+	extend:
+	  /etc/ssh/banner:
+	    file:
+	      - source: salt://ssh/custom-banner
+
+
+``python/mod_python.sls``
+
+.. code-block:: yaml
+
+	include:
+	  - apache
+
+	extend:
+	  apache:
+	    service:
+		  - watch:
+		  - pkg: mod_python
+
+	mod_python:
+	  pkg.installed
+
+
+Le fichier ``custom-server.sls`` utilise la déclaration pour réécrire l'emplacement du fichier de la bannière à télécharger, et donc changer le fichier qui sera utiliser pour configurer la bannière.
+
+Dans le nouveau ``mod_python`` |sls| le paquet "mod_python" est ajouté, mais plus important, le service apache est étendu pour, aussi, vérifier le paquet "mod_python".
+
+.. note::
+
+	La déclaration ``extend`` fonctionne différemment pour ``require`` ou ``watch``. 
+	Il ajoute, à la place de remplacer le composant requis.
+
