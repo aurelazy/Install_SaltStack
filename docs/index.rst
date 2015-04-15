@@ -18,6 +18,7 @@ Contents:
    Fichier_SLS
    State
    Render_System
+   Pillar
 
 
 Indices and tables
