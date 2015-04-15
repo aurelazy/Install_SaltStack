@@ -50,7 +50,7 @@ Maintenant, pour renforcer la formule |sls| ``vim``, un ``vimrc`` peut-être ajo
 
 Maintenant le fichier ``vimrc`` désiré doit être copié dans le serveur de fichier |salt| dans ``/srv/salt/vimrc``. Dans |salt|, tout est fichier, donc auncune redirection de chemin n'a besoin d'être justifié. Le fichier ``vimrc`` est placé juste à coté du fichier ``vim.sls``. La même commande que précédemment peut être éxécuté pour toutes les formules ``vim`` |sls| et vont inclure le fichier de configuration.
 
-
+.. _ajout_profondeur:
 
 Ajout de profondeur
 --------------------
