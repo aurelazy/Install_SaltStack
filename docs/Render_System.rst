@@ -34,3 +34,116 @@ et le moteur de rendu ``pyobjects`` apporte une interface ``Pythonic`` pour cons
 	Quelques exemples de l'utilisation de modèles dans les fichiers de configurationpeuvent être trouvés dans la documentation des :ref:`fichiers |state| <ref_salt.state.file>`.
 
 
+
+Commençont à apprendre le moteur par défaut - ``yaml_jinja``
+--------------------------------------------------------------
+
+Le moteur par défaut- ``yaml_jinja``, permet d'utiliser le sytème de modélisation jinja.
+Un guide sur jinja est disponible `ici <http://jinja.pocoo.org/docs>`_.
+
+Lorsque nous travaillons avec un moteur de rendu quelques bits de données utiles sont écrites.
+Dans le cas d'un moteur de modèlisation basé sur un modèle de rendu (?), trois composants critiques sont disponible, ``salt``, ``grains``, et ``pillar``.
+L'objet ``salt`` permet à n'importe quel fonction |salt| d'appeler depuis un modèle, et un ``grains`` permet aux ``Grains`` d'être accessible depuis un modèle.
+Quelques exemples:
+
+
+``apache/init.sls``:
+
+.. code-block:: yaml
+
+	apache:
+	  pkg.installed:
+	    {% if grains['os'] == 'RedHat' %}
+		- name: httpd
+		{% endif %}
+	  service.running:
+	    {% if grains['os'] == 'RedHat' %}
+		- name: httpd
+	    {% endif %}	
+		- watch:
+		  - pkg: apache
+		  - file: /etc/httpd/conf/httpd.conf
+		  - user: apache
+	  user.present:
+	    - uid: 87
+		- gid: 87
+		- home: /var/www/html
+		- shell: /bin/nologin
+		- require:
+		  - group: apache
+	  group.present:
+	    - gid: 87
+		- require:
+		  - pkg: apache
+
+
+	/etc/httpd/conf/httpd.conf:
+	  file.managed:
+	    - source: salt://apache/httpd.conf
+		- user: root
+		- group: root
+		- mode: 644
+
+
+Cet exemple est simple.
+Si le grain ``os`` voit que le systèmed'exploitation est un RedHat, alors le nom du paquet Apache ainsi que son service sera ``httpd``.
+
+Voici une façon plus aggressive d'utiliser Jinja, en paramétrant un module "MooseFS distributed filesystem chunkserver":
+
+``mossefs/chunk.sls``:
+
+.. code-block:: yaml
+
+	include:
+	  - moosefs
+
+	{% for mnt in salt['cmd.run']('ls /dev/data/moose*').split() %}
+	/mnt/moose{{ mnt[-1] }}:
+	  mount.mounted:
+	    - device: {{ mnt }}
+		- fstype: xfs
+		- mkmnt: True
+	  file.directory:
+	    - user: mfs
+		- group: mfs
+		- require:
+		  - user: mfs
+		  - group: mfs
+	{% endfor %}
+
+
+	/etc/mfshdd.cfg:
+	  file.managed:
+	    - source: salt://mossefs/mfshdd.cfg
+		- user: root
+		- group: root
+		- mode: 644
+		- template: jinja
+		- require:
+		  - pkg: mfs-chunkserver
+
+	/etc/mfschunkserver.cfg:
+	  file.managed:
+	    - source: salt://mossefs/mfschunkserver.cfg
+		- user: root
+		- group: root
+		- mode: 644
+		- template: jinja
+		- require:
+		  - pkg: mfs-chunkserver
+
+	mfs-chunkserver:
+	  pkg.installed: []
+	mfschunkserver:
+	  service.running:
+	    - require:
+	{% for mnt in salt['cmd.run']('ls /dev/data/moose*') %}
+	      - mount: /mnt/moose{{ mnt[-1] }}
+		  - file: /mnt/moose{{ mnt[-1] }}
+	{% endfor %}
+		  - file: /etc/mfschunkserver.cfg
+		  - file: /etc/mfshdd.cfg
+		  - file: /var/lib/mfs
+
+
+A CONTINUER
