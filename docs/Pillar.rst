@@ -21,7 +21,7 @@ Ils permettent la confidentialité, l'envoie sécurisé des données ciblées se
 .. note::
 
 	|grains| et |pillars| peuvent amener à confusion, il faut se souvenir que les |grains| sont des données sur un |minion| qui sont stockées ou générées depuis un |minion|.
-	C'est pouqruoi les informations tel que l'OS et la CPU se trouvent dans les |grains|.
+	C'est pourquoi les informations tel que l'OS et la CPU se trouvent dans les |grains|.
 	|pillar| est une information sur un |minion| ou plusieurs |minions| stockées ou générées sur le **Salt Master**.
 
 
